@@ -1,3 +1,10 @@
+//I will create a Library Management System that allows librarians to efficiently manage their library's inventory. 
+//The system will be implemented using the principles of programming with classes in C#. 
+//It will include classes such as Book, Patron, Library, BorrowingSystem, Catalog, ReportGenerator, InputValidator, and UserInterface. 
+//The classes will demonstrate the principles of abstraction, encapsulation, inheritance, and polymorphism. 
+//The system will enable librarians to add and remove books, track borrowing and returning of books, generate reports, and maintain patron records. 
+//Through a user-friendly command-line interface, librarians will be able to interact with the system, ensuring a streamlined and organized management of library resources.
+
 using System;
 using System.Collections.Generic;
 
