@@ -1,10 +1,3 @@
-//I will create a Library Management System that allows librarians to efficiently manage their library's inventory. 
-//The system will be implemented using the principles of programming with classes in C#. 
-//It will include classes such as Book, Patron, Library, BorrowingSystem, Catalog, ReportGenerator, InputValidator, and UserInterface. 
-//The classes will demonstrate the principles of abstraction, encapsulation, inheritance, and polymorphism. 
-//The system will enable librarians to add and remove books, track borrowing and returning of books, generate reports, and maintain patron records. 
-//Through a user-friendly command-line interface, librarians will be able to interact with the system, ensuring a streamlined and organized management of library resources.
-
 using System;
 using System.Collections.Generic;
 
@@ -39,6 +32,54 @@ class DVD : LibraryItem
     {
         base.PrintDetails();
         Console.WriteLine($"Director: {Director}");
+    }
+}
+
+class Patron
+{
+    public string Name { get; set; }
+    public string Address { get; set; }
+    public string ContactInfo { get; set; }
+    public List<LibraryItem> BorrowedItems { get; set; }
+
+    public Patron()
+    {
+        BorrowedItems = new List<LibraryItem>();
+    }
+
+    public void BorrowItem(LibraryItem item)
+    {
+        BorrowedItems.Add(item);
+        item.IsAvailable = false;
+    }
+
+    public void ReturnItem(LibraryItem item)
+    {
+        BorrowedItems.Remove(item);
+        item.IsAvailable = true;
+    }
+}
+
+class StaffMember
+{
+    public string Name { get; set; }
+    public string Role { get; set; }
+
+    public void AddItemToLibrary(LibraryItem item, Library library)
+    {
+        library.AddItem(item);
+    }
+
+    public void RemoveItemFromLibrary(LibraryItem item, Library library)
+    {
+        library.RemoveItem(item);
+    }
+
+    public void GenerateReport(Library library)
+    {
+        // Generate library report
+        Console.WriteLine("Generating library report...");
+        library.PrintAvailableItems();
     }
 }
 
@@ -83,10 +124,14 @@ class Library
 class UserInterface
 {
     private Library library;
+    private List<Patron> patrons;
+    private StaffMember staffMember;
 
     public UserInterface()
     {
         library = new Library();
+        patrons = new List<Patron>();
+        staffMember = new StaffMember();
     }
 
     public void Run()
@@ -97,7 +142,9 @@ class UserInterface
             Console.WriteLine("2. Add DVD");
             Console.WriteLine("3. Remove Item");
             Console.WriteLine("4. Print Available Items");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("5. Borrow Item");
+            Console.WriteLine("6. Return Item");
+            Console.WriteLine("7. Exit");
             Console.Write("Enter your choice: ");
             string choice = Console.ReadLine();
 
@@ -116,6 +163,12 @@ class UserInterface
                     PrintAvailableItems();
                     break;
                 case "5":
+                    BorrowItem();
+                    break;
+                case "6":
+                    ReturnItem();
+                    break;
+                case "7":
                     return;
                 default:
                     Console.WriteLine("Invalid choice. Please try again.");
@@ -141,7 +194,7 @@ class UserInterface
             IsAvailable = true
         };
 
-        library.AddItem(book);
+        staffMember.AddItemToLibrary(book, library);
         Console.WriteLine("Book added successfully.");
     }
 
@@ -160,7 +213,7 @@ class UserInterface
             IsAvailable = true
         };
 
-        library.AddItem(dvd);
+        staffMember.AddItemToLibrary(dvd, library);
         Console.WriteLine("DVD added successfully.");
     }
 
@@ -173,7 +226,7 @@ class UserInterface
 
         if (itemToRemove != null)
         {
-            library.RemoveItem(itemToRemove);
+            staffMember.RemoveItemFromLibrary(itemToRemove, library);
             Console.WriteLine("Item removed successfully.");
         }
         else
@@ -184,7 +237,51 @@ class UserInterface
 
     private void PrintAvailableItems()
     {
-        library.PrintAvailableItems();
+        staffMember.GenerateReport(library);
+    }
+
+    private void BorrowItem()
+    {
+        Console.Write("Enter patron name: ");
+        string patronName = Console.ReadLine();
+
+        Console.Write("Enter item title: ");
+        string itemTitle = Console.ReadLine();
+
+        Patron patron = patrons.Find(p => p.Name.Equals(patronName, StringComparison.OrdinalIgnoreCase));
+        LibraryItem item = library.FindItemByTitle(itemTitle);
+
+        if (patron != null && item != null && item.IsAvailable)
+        {
+            patron.BorrowItem(item);
+            Console.WriteLine("Item borrowed successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Invalid patron or item not available.");
+        }
+    }
+
+    private void ReturnItem()
+    {
+        Console.Write("Enter patron name: ");
+        string patronName = Console.ReadLine();
+
+        Console.Write("Enter item title: ");
+        string itemTitle = Console.ReadLine();
+
+        Patron patron = patrons.Find(p => p.Name.Equals(patronName, StringComparison.OrdinalIgnoreCase));
+        LibraryItem item = library.FindItemByTitle(itemTitle);
+
+        if (patron != null && item != null && !item.IsAvailable)
+        {
+            patron.ReturnItem(item);
+            Console.WriteLine("Item returned successfully.");
+        }
+        else
+        {
+            Console.WriteLine("Invalid patron or item not borrowed.");
+        }
     }
 }
 
